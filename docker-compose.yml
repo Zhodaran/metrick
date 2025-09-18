@@ -1,0 +1,36 @@
+version: '3'
+
+services:
+  app:
+    build: .
+    ports:
+      - "6060:6060"
+    networks:
+      - mylocal
+  swagger:
+    image: swaggerapi/swagger-ui
+    environment:
+      - SWAGGER_JSON=/swagger.yaml
+    volumes:
+      - ./docs/swagger.yaml:/swagger.yaml
+    networks:
+      - mylocal
+
+  nginx:
+    image: nginx:alpine
+    container_name: nginx
+    ports:
+      - "8080:80"  # Упростили до стандартного порта
+    volumes:
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf
+    depends_on:
+      - app
+      - swagger
+    networks:
+      - mylocal
+
+networks:
+  mylocal:
+    driver: bridge
+    driver_opts:
+      com.docker.network.driver.mtu: 1450
