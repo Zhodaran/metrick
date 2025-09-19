@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"log"
 	"net/http"
 	"os"
 	"os/signal"
@@ -10,11 +11,10 @@ import (
 	"time"
 
 	"go.uber.org/zap"
-	healthpoint "studentgit.kata.academy/Zhodaran/go-kata/adapters/Healthpoint"
 	"studentgit.kata.academy/Zhodaran/go-kata/adapters/adapter"
-	"studentgit.kata.academy/Zhodaran/go-kata/adapters/pprof"
-	"studentgit.kata.academy/Zhodaran/go-kata/adapters/repository"
-	myhttp "studentgit.kata.academy/Zhodaran/go-kata/adapters/router/http"
+	healthpoint "studentgit.kata.academy/Zhodaran/go-kata/adapters/controllers/Healthpoint"
+	myhttp "studentgit.kata.academy/Zhodaran/go-kata/adapters/controllers/controller/http"
+	"studentgit.kata.academy/Zhodaran/go-kata/adapters/controllers/controller/repository"
 )
 
 // @title Address API
@@ -48,7 +48,10 @@ func main() {
 			WriteTimeout: 10 * time.Second,
 		},
 	}
-	pprof.CreatePprof()
+	go func() {
+		log.Println(http.ListenAndServe("0.0.0.0:6060", r))
+	}()
+
 	// Запускаем сервер в горутине
 	go srv.Serve()
 	gracefulShutdown(srv, logger)

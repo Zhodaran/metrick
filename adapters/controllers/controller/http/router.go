@@ -11,8 +11,8 @@ import (
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	httpSwagger "github.com/swaggo/http-swagger"
 	"studentgit.kata.academy/Zhodaran/go-kata/adapters/adapter"
-	"studentgit.kata.academy/Zhodaran/go-kata/adapters/controller"
-	"studentgit.kata.academy/Zhodaran/go-kata/adapters/repository"
+	"studentgit.kata.academy/Zhodaran/go-kata/adapters/controllers/controller/repository"
+	"studentgit.kata.academy/Zhodaran/go-kata/core/entity"
 )
 
 var (
@@ -28,13 +28,13 @@ var (
 	})
 )
 
-func Router(resp controller.Responder, geoService controller.GeoProvider, cache *adapter.Cache) http.Handler {
+func Router(resp entity.Responder, geoService entity.GeoProvider, cache *adapter.Cache) http.Handler {
 	prometheus.MustRegister(requestsTotal)
 	prometheus.MustRegister(requestDuration)
 	r := chi.NewRouter()
 	r.Use(middleware.Logger)
 	r.Use(middleware.Recoverer)
-
+	r.Handle("/metrics", promhttp.Handler())
 	// Public routes (без авторизации)
 	r.Get("/swagger/*", httpSwagger.WrapHandler) // Swagger остаётся публичным
 
@@ -63,7 +63,9 @@ func Router(resp controller.Responder, geoService controller.GeoProvider, cache 
 		r.Handle("/mycustompath/pprof/threadcreate", NetPprof.Handler("threadcreate"))
 		r.Handle("/mycustompath/pprof/mutex", NetPprof.Handler("mutex"))
 
+		//metrick
+
 	})
-	r.Handle("/metrics", promhttp.Handler())
+
 	return r
 }
